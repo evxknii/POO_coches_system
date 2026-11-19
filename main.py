@@ -1,5 +1,5 @@
 from coches import coches
-from tkinter import Label,Entry,Button,Tk,messagebox,StringVar
+from tkinter import Label,Entry,Button,Tk,messagebox,StringVar, Menu
 
 
 class App:
@@ -14,9 +14,29 @@ class App:
     def borrarPantalla(self):
       for widget in self.ventana.winfo_children():
           widget.destroy()
+
+    def barraMenu(self):
+        #Menu de Opciones
+        menuBar = Menu(self.ventana)
+        self.ventana.config(menu=menuBar)
+        menuPrincipal = Menu(menuBar , tearoff=False)
+        menuBar.add_cascade(label="Principal" , menu=menuPrincipal)
+        menuPrincipal.add_command(label="Menu Principal",command=self.main)
+        menuPrincipal.add_command(label="Menu Acciones",command=self.menu_acciones)
+        menuPrincipal.add_separator()
+        menuPrincipal.add_command(label="Salir",command=self.ventana.quit)               
+        accionesMenu = Menu(menuBar , tearoff=False)
+        menuBar.add_cascade(label="Acciones" , menu=accionesMenu)
+        accionesMenu.add_command(label="Agregar",command=self.insertar_view )
+        accionesMenu.add_command(label="Borrar",command=self.eliminar_view)
+        accionesMenu.add_command(label="Modificar",command=self.modificar_view)
+        accionesMenu.add_command(label="Mostrar",command=self.consultar_view)
+        accionesMenu.add_separator()
+        accionesMenu.add_command(label="Regresar",command=self.main)
     
     def menu_acciones(self):
         self.borrarPantalla()
+        self.barraMenu()
         tipo="Coches"
         Label(self.ventana,text=f"\n...::: Menu de {tipo} :::... \n").pack(pady=10)
         Button(self.ventana,text="1.- Agregar",command=self.insertar_view).pack(pady=5)
@@ -27,12 +47,14 @@ class App:
         
     def main(self):
             self.borrarPantalla() 
+            self.barraMenu()
             Label(self.ventana,text="\n...::: M E N U   P R I N C I P A L :::...").pack(pady=10)    
             Button(self.ventana,text="1.- Coches",command=self.menu_acciones).pack(pady=5) 
             Button(self.ventana,text="2.- Salir",command=self.ventana.quit).pack(pady=5)  
     
     def insertar_view(self):
         self.borrarPantalla()
+        self.barraMenu()
         Label(self.ventana,text="...Ingresar los datos del Coche...").pack(pady=10)
         
         Label(self.ventana,text="Marca: ").pack(pady=5)
@@ -65,6 +87,7 @@ class App:
         
     def eliminar_view(self):
             self.borrarPantalla()
+            self.barraMenu()
             Label(self.ventana,text="...Ingresar el ID del Coche a Eliminar...").pack(pady=10)
             
             Label(self.ventana,text="ID: ").pack(pady=5)
@@ -82,7 +105,17 @@ class App:
         
     def modificar_view(self):
        self.borrarPantalla()
+       self.barraMenu()
        Label(self.ventana,text="...Ingresar el ID del Coche a modificar...").pack(pady=10)
+
+       #variables asociadas 
+       self.var_marca= StringVar()
+       self.var_color= StringVar()
+       self.var_modelo= StringVar()
+       self.var_velocidad= StringVar()
+       self.var_potencia= StringVar()
+       self.var_asientos= StringVar()
+              
                    
        Label(self.ventana,text="ID: ").pack(pady=5)
        self.id=Entry(self.ventana)
@@ -125,9 +158,12 @@ class App:
        self.btn_modificar=Button(self.ventana,text="Guardar",state="disabled",command=lambda:{self.modificar_controller(),self.modificar_view()})
        self.btn_modificar.pack(pady=10)
        Button(self.ventana,text="Regresar",command=self.menu_acciones).pack(pady=5)
-       
+
+      # se asocian a los campos 
+     
     def consultar_view(self):
         self.borrarPantalla()
+        self.barraMenu()
         Label(self.ventana,text=" ::: Consultar los Coches :::").pack(pady=10)
         filas=""  
         filas=self.consultar_controller(filas)
@@ -198,3 +234,22 @@ class App:
         coche1=coches.Coches.buscar(id)
         if len(coche1)>0: 
             messagebox.showinfo(title="...¡ Registro Encontrado !...",message=f"...¡El registro fue encontrado con exito, puedes {tipo_accion}!...")
+            self.cambiar_estado_btn(True, tipo_accion)
+            if tipo_accion == "modificar":
+                self.var_marca.set(0, coche1 [0][1])
+                self.var_color.set(0, coche1 [0][2])
+                self.var_modelo.set(0, coche1 [0][3])
+                self.var_velocidad.set(0, coche1 [0][4])
+                self.var_potencia.set(0, coche1 [0][5])
+                self.var_asientos.set(0,  coche1 [0][6])
+            else:
+                messagebox.showerror(title="... ¡ verificar por favor! ...", message=f"... El registro no fue encontradi, no es posible {tipo_accion} ...")
+                self.cambiar_estado_btn(False, tipo_accion)
+
+# se hace commit cada vez que , cuando se hace una rama se lleva los cambios de la version anterior, 
+#frame: jugar/ acomodar los elementos, 
+
+if __name__ == "__main__":
+    ventana = Tk()
+    app = App(ventana)
+    ventana.mainloop()
